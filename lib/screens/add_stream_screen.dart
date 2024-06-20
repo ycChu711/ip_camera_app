@@ -39,7 +39,7 @@ class _AddStreamScreenState extends State<AddStreamScreen> {
             TextField(
               controller: _urlController,
               decoration: const InputDecoration(
-                labelText: rtspUrlLabel,
+                labelText: streamUrlLabel,
               ),
             ),
           ],
