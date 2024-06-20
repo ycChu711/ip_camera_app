@@ -25,11 +25,14 @@ class _AddStreamScreenState extends State<AddStreamScreen> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text(addStreamLabel),
+      //title: const Text(addStreamLabel),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            const Text(addStreamLabel,
+                style: TextStyle(fontSize: 20)), // Title included here
+            SizedBox(height: 20), // Space after title
             TextField(
               controller: _titleController,
               decoration: const InputDecoration(
@@ -42,44 +45,48 @@ class _AddStreamScreenState extends State<AddStreamScreen> {
                 labelText: streamUrlLabel,
               ),
             ),
+            SizedBox(height: 20), // Add some space before the buttons
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                TextButton(
+                  child: const Text(cancelButtonLabel),
+                  onPressed: () {
+                    _titleController.clear();
+                    _urlController.clear();
+                    Navigator.of(context).pop();
+                  },
+                ),
+                TextButton(
+                  child: const Text(addButtonLabel),
+                  onPressed: () {
+                    final url = _urlController.text;
+                    final title = _titleController.text;
+                    if (url.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(emptyStreamAddressError)),
+                      );
+                      return;
+                    }
+
+                    if (title.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(emptyTitleError)),
+                      );
+                      return;
+                    }
+
+                    widget.onAddStream(url, title);
+                    _titleController.clear();
+                    _urlController.clear();
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            ),
           ],
         ),
       ),
-      actions: <Widget>[
-        TextButton(
-          child: const Text(cancelButtonLabel),
-          onPressed: () {
-            _titleController.clear();
-            _urlController.clear();
-            Navigator.of(context).pop();
-          },
-        ),
-        TextButton(
-          child: const Text(addButtonLabel),
-          onPressed: () {
-            final url = _urlController.text;
-            final title = _titleController.text;
-            if (url.isEmpty) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(emptyStreamAddressError)),
-              );
-              return;
-            }
-
-            if (title.isEmpty) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(emptyTitleError)),
-              );
-              return;
-            }
-
-            widget.onAddStream(url, title);
-            _titleController.clear();
-            _urlController.clear();
-            Navigator.of(context).pop();
-          },
-        ),
-      ],
     );
   }
 }
