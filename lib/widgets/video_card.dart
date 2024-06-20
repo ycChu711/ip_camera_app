@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_vlc_player/flutter_vlc_player.dart';
 import 'dart:io';
@@ -10,19 +11,19 @@ class VideoCard extends StatefulWidget {
   final Function(int) onEdit;
 
   const VideoCard({
-    Key? key,
+    super.key,
     required this.title,
     required this.url,
     required this.index,
     required this.onDelete,
     required this.onEdit,
-  }) : super(key: key);
+  });
 
   @override
-  _VideoCardState createState() => _VideoCardState();
+  VideoCardState createState() => VideoCardState();
 }
 
-class _VideoCardState extends State<VideoCard> {
+class VideoCardState extends State<VideoCard> {
   late VlcPlayerController _controller;
   bool _isFile = false;
 
@@ -61,7 +62,9 @@ class _VideoCardState extends State<VideoCard> {
 
     _controller.addListener(() {
       if (_controller.value.hasError) {
-        print('Error playing video: ${_controller.value.errorDescription}');
+        if (kDebugMode) {
+          print('Error playing video: ${_controller.value.errorDescription}');
+        }
       }
     });
   }
@@ -139,7 +142,7 @@ class _VideoCardState extends State<VideoCard> {
                       valueListenable: _controller,
                       builder: (context, value, child) {
                         if (value.hasError) {
-                          return Center(
+                          return const Center(
                             child: Icon(
                               Icons.error,
                               color: Colors.red,
@@ -148,14 +151,16 @@ class _VideoCardState extends State<VideoCard> {
                           );
                         }
                         return value.isPlaying
-                            ? SizedBox.shrink()
+                            ? const SizedBox.shrink()
                             : ElevatedButton(
                                 onPressed: () {
                                   if (_controller.value.isInitialized) {
                                     setState(() {
                                       _controller.play();
-                                      print(
-                                          'Play button pressed, video playing');
+                                      if (kDebugMode) {
+                                        print(
+                                            'Play button pressed, video playing');
+                                      }
                                     });
                                   }
                                 },
@@ -170,14 +175,20 @@ class _VideoCardState extends State<VideoCard> {
                         setState(() {
                           if (_controller.value.isPlaying) {
                             _controller.pause();
-                            print('Video paused');
+                            if (kDebugMode) {
+                              print('Video paused');
+                            }
                           } else {
                             _controller.play();
-                            print('Video playing');
+                            if (kDebugMode) {
+                              print('Video playing');
+                            }
                           }
                         });
                       } else {
-                        print('Controller not initialized');
+                        if (kDebugMode) {
+                          print('Controller not initialized');
+                        }
                       }
                     },
                     child: Container(

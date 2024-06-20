@@ -4,16 +4,16 @@ import '../widgets/video_card.dart';
 import '../services/video_service.dart';
 import 'add_stream_screen.dart';
 import 'download_stream_screen.dart';
-import '../utils/constants.dart'; // Import the constants file
+import '../utils/constants.dart';
 
 class VideoGridScreen extends StatefulWidget {
-  const VideoGridScreen({Key? key}) : super(key: key);
+  const VideoGridScreen({super.key});
 
   @override
-  _VideoGridScreenState createState() => _VideoGridScreenState();
+  VideoGridScreenState createState() => VideoGridScreenState();
 }
 
-class _VideoGridScreenState extends State<VideoGridScreen> {
+class VideoGridScreenState extends State<VideoGridScreen> {
   final List<Map<String, String>> videoData = [
     {
       'url':
@@ -51,10 +51,12 @@ class _VideoGridScreenState extends State<VideoGridScreen> {
   Future<void> _downloadStream(String url, String title) async {
     try {
       final filePath = await downloadVideo(url);
+      if (!mounted) return; // <-- Added mounted check
       setState(() {
         videoData.add({'url': filePath, 'title': title});
       });
     } catch (e) {
+      if (!mounted) return; // <-- Added mounted check
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('$failedDownloadError $e')),
       );
@@ -135,7 +137,7 @@ class _VideoGridScreenState extends State<VideoGridScreen> {
                 final newTitle = _editTitleController.text;
                 if (newTitle.isEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(emptyTitleError)),
+                    const SnackBar(content: Text(emptyTitleError)),
                   );
                   return;
                 }
@@ -184,7 +186,7 @@ class _VideoGridScreenState extends State<VideoGridScreen> {
                   onPressed: _showAddStreamDialog,
                   child: const Text(addStreamLabel),
                 ),
-                SizedBox(width: paddingSmall),
+                const SizedBox(width: paddingSmall),
                 ElevatedButton(
                   onPressed: _showDownloadStreamDialog,
                   child: const Text(downloadStreamLabel),

@@ -4,14 +4,13 @@ import '../utils/constants.dart';
 class DownloadStreamScreen extends StatefulWidget {
   final Function(String, String) onDownloadStream;
 
-  const DownloadStreamScreen({Key? key, required this.onDownloadStream})
-      : super(key: key);
+  const DownloadStreamScreen({super.key, required this.onDownloadStream});
 
   @override
-  _DownloadStreamScreenState createState() => _DownloadStreamScreenState();
+  DownloadStreamScreenState createState() => DownloadStreamScreenState();
 }
 
-class _DownloadStreamScreenState extends State<DownloadStreamScreen> {
+class DownloadStreamScreenState extends State<DownloadStreamScreen> {
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _urlController = TextEditingController();
 
@@ -31,7 +30,7 @@ class _DownloadStreamScreenState extends State<DownloadStreamScreen> {
           children: [
             const Text(downloadStreamLabel,
                 style: TextStyle(fontSize: 20)), // Title included here
-            SizedBox(height: 20), // Space after title
+            const SizedBox(height: 20), // Space after title
             TextField(
               controller: _titleController,
               decoration: const InputDecoration(
@@ -44,7 +43,7 @@ class _DownloadStreamScreenState extends State<DownloadStreamScreen> {
                 labelText: streamUrlLabel,
               ),
             ),
-            SizedBox(height: 20), // Space before the buttons
+            const SizedBox(height: 20), // Space before the buttons
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
@@ -63,14 +62,14 @@ class _DownloadStreamScreenState extends State<DownloadStreamScreen> {
                     final title = _titleController.text;
                     if (url.isEmpty) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text(emptyStreamAddressError)),
+                        const SnackBar(content: Text(emptyStreamAddressError)),
                       );
                       return;
                     }
 
                     if (title.isEmpty) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text(emptyTitleError)),
+                        const SnackBar(content: Text(emptyTitleError)),
                       );
                       return;
                     }
