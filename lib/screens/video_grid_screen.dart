@@ -72,7 +72,28 @@ class VideoGridScreenState extends State<VideoGridScreen> {
     if (parts.length == 2) {
       final url = parts[0];
       final title = parts[1];
+
+      // Automatically start downloading the video
       _downloadStream(url, title);
+
+      // Show the notification dialog
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('New Video Received'),
+            content: Text('Title: $title\nThe video is being downloaded.'),
+            actions: <Widget>[
+              TextButton(
+                child: const Text('Close'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
     }
   }
 
