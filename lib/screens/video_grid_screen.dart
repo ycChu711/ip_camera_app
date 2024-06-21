@@ -1,13 +1,17 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:mqtt_client/mqtt_client.dart';
 import '../widgets/video_card.dart';
 import '../services/video_service.dart';
 import 'add_stream_screen.dart';
 import 'download_stream_screen.dart';
 import '../utils/constants.dart';
+import '../services/mqtt_service.dart';
 
 class VideoGridScreen extends StatefulWidget {
-  const VideoGridScreen({super.key});
+  final MqttService? mqttService;
+
+  const VideoGridScreen({super.key, required this.mqttService});
 
   @override
   VideoGridScreenState createState() => VideoGridScreenState();
@@ -42,21 +46,57 @@ class VideoGridScreenState extends State<VideoGridScreen> {
 
   final TextEditingController _editTitleController = TextEditingController();
 
+  @override
+  void initState() {
+    super.initState();
+    if (widget.mqttService != null) {
+      widget.mqttService!.updates!.listen(_onMessage);
+      if (kDebugMode) {
+        print("MQTT service connected and listening for messages");
+      }
+    } else {
+      if (kDebugMode) {
+        print("MQTT service not connected");
+      }
+    }
+    if (kDebugMode) {
+      print("Initialized VideoGridScreen with ${videoData.length} videos");
+    }
+  }
+
+  void _onMessage(List<MqttReceivedMessage<MqttMessage>> event) {
+    final MqttPublishMessage recMess = event[0].payload as MqttPublishMessage;
+    final pt =
+        MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
+    final parts = pt.split(',');
+    if (parts.length == 2) {
+      final url = parts[0];
+      final title = parts[1];
+      _downloadStream(url, title);
+    }
+  }
+
   void _addNewStream(String url, String title) {
     setState(() {
       videoData.add({'url': url, 'title': title});
+      if (kDebugMode) {
+        print("Added new stream: $title");
+      }
     });
   }
 
   Future<void> _downloadStream(String url, String title) async {
     try {
       final filePath = await downloadVideo(url);
-      if (!mounted) return; // <-- Added mounted check
+      if (!mounted) return;
       setState(() {
         videoData.add({'url': filePath, 'title': title});
+        if (kDebugMode) {
+          print("Downloaded stream: $title");
+        }
       });
     } catch (e) {
-      if (!mounted) return; // <-- Added mounted check
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('$failedDownloadError $e')),
       );
@@ -82,6 +122,9 @@ class VideoGridScreenState extends State<VideoGridScreen> {
               onPressed: () {
                 setState(() {
                   videoData.removeAt(index);
+                  if (kDebugMode) {
+                    print("Deleted stream at index: $index");
+                  }
                 });
                 Navigator.of(context).pop();
               },
@@ -144,6 +187,9 @@ class VideoGridScreenState extends State<VideoGridScreen> {
 
                 setState(() {
                   videoData[index]['title'] = newTitle;
+                  if (kDebugMode) {
+                    print("Edited stream title to: $newTitle");
+                  }
                 });
 
                 _editTitleController.clear();
@@ -158,6 +204,9 @@ class VideoGridScreenState extends State<VideoGridScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (kDebugMode) {
+      print("Building VideoGridScreen with ${videoData.length} videos");
+    }
     if (defaultTargetPlatform != TargetPlatform.android &&
         defaultTargetPlatform != TargetPlatform.iOS) {
       return Scaffold(

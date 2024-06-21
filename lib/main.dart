@@ -1,12 +1,27 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'screens/video_grid_screen.dart';
+import 'services/mqtt_service.dart';
 
-void main() {
-  runApp(const MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final mqttService = MqttService('192.168.1.13', 'flutter_client');
+  try {
+    await mqttService.connect();
+    mqttService.subscribe('test/topic');
+    runApp(MyApp(mqttService: mqttService));
+  } catch (e) {
+    if (kDebugMode) {
+      print('Failed to connect to MQTT server: $e');
+    }
+    runApp(const MyApp(mqttService: null)); // Pass null if the connection fails
+  }
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final MqttService? mqttService;
+
+  const MyApp({super.key, required this.mqttService});
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +30,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: const VideoGridScreen(),
+      home: VideoGridScreen(mqttService: mqttService),
     );
   }
 }
