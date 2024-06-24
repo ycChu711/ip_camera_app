@@ -1,6 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:mqtt_client/mqtt_client.dart';
+import '../main.dart';
 import '../widgets/video_card.dart';
 import '../services/video_service.dart';
 import 'add_stream_screen.dart';
@@ -42,6 +45,11 @@ class VideoGridScreenState extends State<VideoGridScreen> {
           'https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4',
       'title': 'Camera 5'
     },
+    {
+      'url':
+          'rtsp://rtspstream:c04c17ddd4efc34ba69c1e7c03c87a2f@zephyr.rtsp.stream/movie',
+      'title': 'RTSP Stream 1'
+    }
   ];
 
   final TextEditingController _editTitleController = TextEditingController();
@@ -59,9 +67,44 @@ class VideoGridScreenState extends State<VideoGridScreen> {
         print("MQTT service not connected");
       }
     }
+    _setupFirebaseMessaging();
     if (kDebugMode) {
       print("Initialized VideoGridScreen with ${videoData.length} videos");
     }
+  }
+
+  void _setupFirebaseMessaging() {
+    FirebaseMessaging messaging = FirebaseMessaging.instance;
+    messaging.requestPermission(
+      alert: true,
+      badge: true,
+      sound: true,
+    );
+
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      RemoteNotification? notification = message.notification;
+      AndroidNotification? android = message.notification?.android;
+
+      if (notification != null && android != null) {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text(notification.title ?? ''),
+              content: Text(notification.body ?? ''),
+              actions: <Widget>[
+                TextButton(
+                  child: const Text('Close'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      }
+    });
   }
 
   void _onMessage(List<MqttReceivedMessage<MqttMessage>> event) {
@@ -94,7 +137,32 @@ class VideoGridScreenState extends State<VideoGridScreen> {
           );
         },
       );
+
+      // Show local notification
+      showNotification('New Video Received',
+          'Title: $title\nThe video is being downloaded.');
     }
+  }
+
+  void showNotification(String? title, String? body) async {
+    const AndroidNotificationDetails androidPlatformChannelSpecifics =
+        AndroidNotificationDetails(
+      'your_channel_id',
+      'your_channel_name',
+      channelDescription: 'your_channel_description',
+      importance: Importance.max,
+      priority: Priority.high,
+      ticker: 'ticker',
+    );
+    const NotificationDetails platformChannelSpecifics =
+        NotificationDetails(android: androidPlatformChannelSpecifics);
+    await flutterLocalNotificationsPlugin.show(
+      0,
+      title,
+      body,
+      platformChannelSpecifics,
+      payload: 'item x',
+    );
   }
 
   void _addNewStream(String url, String title) {
@@ -240,7 +308,6 @@ class VideoGridScreenState extends State<VideoGridScreen> {
         ),
       );
     }
-
     return Scaffold(
       appBar: AppBar(
         title: const Text(appTitle),
