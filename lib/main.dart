@@ -5,7 +5,7 @@ import 'services/mqtt_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final mqttService = MqttService('192.168.1.13', 'flutter_client');
+  final mqttService = MqttService('192.168.1.15', 'flutter_client');
   try {
     await mqttService.connect();
     mqttService.subscribe('test/topic');
