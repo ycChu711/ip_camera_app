@@ -30,25 +30,39 @@ jobs:
     - name: Build iOS
       run: flutter build ios --release --no-codesign
 
+    - name: Archive iOS
+      run: |
+        xcodebuild -workspace ios/Runner.xcworkspace \
+          -scheme Runner \
+          -sdk iphoneos \
+          -configuration Release \
+          -archivePath $PWD/build/Runner.xcarchive \
+          clean archive
+
+    - name: Export IPA
+      run: |
+        xcodebuild -exportArchive \
+          -archivePath $PWD/build/Runner.xcarchive \
+          -exportOptionsPlist ios/Runner/ExportOptions.plist \
+          -exportPath $PWD/build/ios/ipa
+
     - name: Upload Build Artifacts
       uses: actions/upload-artifact@v3
       with:
         name: app-release
-        path: build/ios/iphoneos/*.ipa
+        path: build/ios/ipa/*.ipa
 
     - name: Install Firebase CLI
       run: curl -sL https://firebase.tools | bash
 
     - name: Deploy to Firebase App Distribution
       env:
-        FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
-        FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
         GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
       run: |
         echo "${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}" > $HOME/service-account.json
         export GOOGLE_APPLICATION_CREDENTIALS=$HOME/service-account.json
         echo "Deploying to Firebase App Distribution"
-        firebase appdistribution:distribute build/ios/iphoneos/*.ipa \
+        firebase appdistribution:distribute build/ios/ipa/*.ipa \
           --app 1:204969236584:ios:3ba1b6ffce11e586e283dd \
           --release-notes "Automated build from GitHub Actions" \
-          --groups Panvision
+          --groups v1.0
