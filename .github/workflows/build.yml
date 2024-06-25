@@ -34,7 +34,7 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: app-release
-        path: build/ios/iphoneos/Runner.app
+        path: build/ios/iphoneos/*.ipa
 
     - name: Install Firebase CLI
       run: curl -sL https://firebase.tools | bash
@@ -43,9 +43,12 @@ jobs:
       env:
         FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
         FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+        GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
       run: |
+        echo "${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}" > $HOME/service-account.json
+        export GOOGLE_APPLICATION_CREDENTIALS=$HOME/service-account.json
         echo "Deploying to Firebase App Distribution"
-        firebase appdistribution:distribute build/ios/ipa/*.ipa \
+        firebase appdistribution:distribute build/ios/iphoneos/*.ipa \
           --app 1:204969236584:ios:3ba1b6ffce11e586e283dd \
           --release-notes "Automated build from GitHub Actions" \
           --groups Panvision
