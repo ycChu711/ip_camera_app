@@ -36,6 +36,9 @@ jobs:
         name: app-release
         path: build/ios/iphoneos/Runner.app
 
+    - name: Install Firebase CLI
+      run: curl -sL https://firebase.tools | bash
+      
     - name: Deploy to Firebase App Distribution
       env:
         FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
