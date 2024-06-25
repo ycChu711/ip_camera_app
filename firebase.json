@@ -1,0 +1,1 @@
+{"flutter":{"platforms":{"ios":{"default":{"projectId":"ip-camera-app-423ed","appId":"1:204969236584:ios:2e922b28b2a40c77e283dd","uploadDebugSymbols":false,"fileOutput":"ios/Runner/GoogleService-Info.plist"}},"dart":{"lib/firebase_options.dart":{"projectId":"ip-camera-app-423ed","configurations":{"ios":"1:204969236584:ios:2e922b28b2a40c77e283dd"}}}}}}

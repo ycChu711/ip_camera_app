@@ -30,27 +30,11 @@ jobs:
     - name: Build iOS
       run: flutter build ios --release --no-codesign
 
-    - name: Archive iOS
-      run: |
-        xcodebuild -workspace ios/Runner.xcworkspace \
-          -scheme Runner \
-          -sdk iphoneos \
-          -configuration Release \
-          -archivePath $PWD/build/Runner.xcarchive \
-          clean archive
-
-    - name: Export IPA
-      run: |
-        xcodebuild -exportArchive \
-          -archivePath $PWD/build/Runner.xcarchive \
-          -exportOptionsPlist ios/Runner/ExportOptions.plist \
-          -exportPath $PWD/build/ios/ipa
-
     - name: Upload Build Artifacts
       uses: actions/upload-artifact@v3
       with:
         name: app-release
-        path: build/ios/ipa/*.ipa
+        path: build/ios/iphoneos/*.ipa
 
     - name: Install Firebase CLI
       run: curl -sL https://firebase.tools | bash
@@ -62,7 +46,7 @@ jobs:
         echo "${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}" > $HOME/service-account.json
         export GOOGLE_APPLICATION_CREDENTIALS=$HOME/service-account.json
         echo "Deploying to Firebase App Distribution"
-        firebase appdistribution:distribute build/ios/ipa/*.ipa \
+        firebase appdistribution:distribute build/ios/iphoneos/*.ipa \
           --app 1:204969236584:ios:3ba1b6ffce11e586e283dd \
           --release-notes "Automated build from GitHub Actions" \
           --groups v1.0
