@@ -38,10 +38,11 @@ jobs:
 
     - name: Install Firebase CLI
       run: curl -sL https://firebase.tools | bash
-      
+
     - name: Deploy to Firebase App Distribution
       env:
         FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
+        FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
       run: |
         echo "Deploying to Firebase App Distribution"
         firebase appdistribution:distribute build/ios/iphoneos/Runner.app \
