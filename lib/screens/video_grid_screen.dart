@@ -334,7 +334,7 @@ class VideoGridScreenState extends State<VideoGridScreen> {
           Expanded(
             child: GridView.builder(
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2, // Number of columns in the grid
+                crossAxisCount: 1, // Number of columns in the grid
                 crossAxisSpacing: paddingSmall,
                 mainAxisSpacing: paddingSmall,
               ),
