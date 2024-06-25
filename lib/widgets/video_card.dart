@@ -27,6 +27,7 @@ class VideoCardState extends State<VideoCard> {
   late VlcPlayerController _controller;
   bool _isFile = false;
   double _sliderValue = 0.0;
+  double _maxValue = 0.0;
 
   @override
   void initState() {
@@ -67,9 +68,12 @@ class VideoCardState extends State<VideoCard> {
           print('Error playing video: ${_controller.value.errorDescription}');
         }
       } else {
-        setState(() {
-          _sliderValue = _controller.value.position.inSeconds.toDouble();
-        });
+        if (_controller.value.duration.inSeconds > 0) {
+          setState(() {
+            _sliderValue = _controller.value.position.inSeconds.toDouble();
+            _maxValue = _controller.value.duration.inSeconds.toDouble();
+          });
+        }
       }
     });
   }
@@ -215,7 +219,7 @@ class VideoCardState extends State<VideoCard> {
                 child: Slider(
                   value: _sliderValue,
                   min: 0.0,
-                  max: _controller.value.duration.inSeconds.toDouble(),
+                  max: _maxValue > 0 ? _maxValue : 1.0,
                   onChanged: (value) {
                     setState(() {
                       _sliderValue = value;
