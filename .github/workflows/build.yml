@@ -45,7 +45,7 @@ jobs:
         FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
       run: |
         echo "Deploying to Firebase App Distribution"
-        firebase appdistribution:distribute build/ios/iphoneos/Runner.app \
+        firebase appdistribution:distribute build/ios/ipa/*.ipa \
           --app 1:204969236584:ios:3ba1b6ffce11e586e283dd \
           --release-notes "Automated build from GitHub Actions" \
           --groups Panvision
