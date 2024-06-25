@@ -26,6 +26,7 @@ class VideoCard extends StatefulWidget {
 class VideoCardState extends State<VideoCard> {
   late VlcPlayerController _controller;
   bool _isFile = false;
+  double _sliderValue = 0.0;
 
   @override
   void initState() {
@@ -65,6 +66,10 @@ class VideoCardState extends State<VideoCard> {
         if (kDebugMode) {
           print('Error playing video: ${_controller.value.errorDescription}');
         }
+      } else {
+        setState(() {
+          _sliderValue = _controller.value.position.inSeconds.toDouble();
+        });
       }
     });
   }
@@ -82,6 +87,10 @@ class VideoCardState extends State<VideoCard> {
       _controller.dispose();
       _initializeController(widget.url);
     }
+  }
+
+  void _seekTo(double seconds) {
+    _controller.seekTo(Duration(seconds: seconds.toInt()));
   }
 
   @override
@@ -196,6 +205,24 @@ class VideoCardState extends State<VideoCard> {
                     ),
                   ),
                 ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: SizedBox(
+                height:
+                    30, // Adjust this height to make the progress bar smaller
+                child: Slider(
+                  value: _sliderValue,
+                  min: 0.0,
+                  max: _controller.value.duration.inSeconds.toDouble(),
+                  onChanged: (value) {
+                    setState(() {
+                      _sliderValue = value;
+                    });
+                    _seekTo(value);
+                  },
+                ),
               ),
             ),
           ],
