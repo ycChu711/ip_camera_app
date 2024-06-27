@@ -39,7 +39,16 @@ jobs:
       run: curl -sL https://firebase.tools | bash
   
     - name: Create Google Application Credentials file
-      run: echo "${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_KEY }}" | base64 --decode > $HOME/service-account.json
+      run: |
+        echo "${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_KEY }}" | base64 --decode > $HOME/service-account.json
+        cat $HOME/service-account.json # Log the contents for verification
+
+    - name: Verify Google Application Credentials
+      run: |
+        echo "GOOGLE_APPLICATION_CREDENTIALS is set to: $GOOGLE_APPLICATION_CREDENTIALS"
+        ls -l $GOOGLE_APPLICATION_CREDENTIALS
+      env:
+        GOOGLE_APPLICATION_CREDENTIALS: $HOME/service-account.json
 
     - name: Deploy to Firebase App Distribution
       env:
