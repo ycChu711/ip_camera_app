@@ -114,24 +114,30 @@ class VideoGridScreenState extends State<VideoGridScreen> {
 
     // Check if the message contains a URL
     if (Uri.tryParse(pt)?.hasAbsolutePath == true) {
-      // Handle as a video link
-      _handleVideoLink(pt);
+      // Handle as a video or stream link
+      _handleUrl(pt);
     } else {
       // Handle as a simple alert message
       _showAlertDialog(pt);
     }
   }
 
-  void _handleVideoLink(String message) {
+  void _handleUrl(String message) {
     final parts = message.split(',');
     if (parts.length == 2) {
       final url = parts[0];
       final title = parts[1];
 
-      // Automatically start downloading the video
-      _downloadStream(url, title);
+      // Try to download the video first
+      _tryDownloadOrStream(url, title);
+    }
+  }
 
-      // Show the notification dialog
+  Future<void> _tryDownloadOrStream(String url, String title) async {
+    try {
+      await _downloadStream(url, title);
+
+      // Show the notification dialog for download
       showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -150,9 +156,35 @@ class VideoGridScreenState extends State<VideoGridScreen> {
         },
       );
 
-      // Show local notification
+      // Show local notification for download
       showNotification('New Video Received',
           'Title: $title\nThe video is being downloaded.');
+    } catch (e) {
+      // If download fails, handle as a stream URL
+      _addNewStream(url, title);
+
+      // Show the notification dialog for stream
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('New Stream Received'),
+            content: Text('Title: $title\nA new stream has been added.'),
+            actions: <Widget>[
+              TextButton(
+                child: const Text('Close'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
+
+      // Show local notification for stream
+      showNotification(
+          'New Stream Received', 'Title: $title\nA new stream has been added.');
     }
   }
 
@@ -220,10 +252,7 @@ class VideoGridScreenState extends State<VideoGridScreen> {
         }
       });
     } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('$failedDownloadError $e')),
-      );
+      throw Exception("Failed to download video: $e");
     }
   }
 
@@ -290,7 +319,7 @@ class VideoGridScreenState extends State<VideoGridScreen> {
               labelText: titleLabel,
             ),
           ),
-          actions: <Widget>[
+          actions: [
             TextButton(
               child: const Text(cancelButtonLabel),
               onPressed: () {
@@ -308,7 +337,6 @@ class VideoGridScreenState extends State<VideoGridScreen> {
                   );
                   return;
                 }
-
                 setState(() {
                   videoData[index]['title'] = newTitle;
                   if (kDebugMode) {
