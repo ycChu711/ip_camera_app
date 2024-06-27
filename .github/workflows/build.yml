@@ -23,7 +23,6 @@ jobs:
     - name: Install dependencies
       run: flutter pub get
 
-    # Ensure the secrets are correctly accessed
     - name: Create GoogleService-Info.plist
       run: echo "${{ secrets.GOOGLE_SERVICE_INFO_PLIST }}" > ios/GoogleService-Info.plist
 
@@ -39,12 +38,13 @@ jobs:
     - name: Install Firebase CLI
       run: curl -sL https://firebase.tools | bash
   
+    - name: Create Google Application Credentials file
+      run: echo "${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_KEY }}" | base64 --decode > $HOME/service-account.json
+
     - name: Deploy to Firebase App Distribution
       env:
-        GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
+        GOOGLE_APPLICATION_CREDENTIALS: $HOME/service-account.json
       run: |
-        echo "${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}" | base64 --decode > $HOME/service-account.json
-        export GOOGLE_APPLICATION_CREDENTIALS=$HOME/service-account.json
         firebase appdistribution:distribute build/ios/iphoneos/*.ipa \
           --app 1:204969236584:ios:3ba1b6ffce11e586e283dd \
           --release-notes "Automated build from GitHub Actions" \
