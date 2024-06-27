@@ -111,7 +111,19 @@ class VideoGridScreenState extends State<VideoGridScreen> {
     final MqttPublishMessage recMess = event[0].payload as MqttPublishMessage;
     final pt =
         MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
-    final parts = pt.split(',');
+
+    // Check if the message contains a URL
+    if (Uri.tryParse(pt)?.hasAbsolutePath == true) {
+      // Handle as a video link
+      _handleVideoLink(pt);
+    } else {
+      // Handle as a simple alert message
+      _showAlertDialog(pt);
+    }
+  }
+
+  void _handleVideoLink(String message) {
+    final parts = message.split(',');
     if (parts.length == 2) {
       final url = parts[0];
       final title = parts[1];
@@ -142,6 +154,29 @@ class VideoGridScreenState extends State<VideoGridScreen> {
       showNotification('New Video Received',
           'Title: $title\nThe video is being downloaded.');
     }
+  }
+
+  void _showAlertDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Alert'),
+          content: Text(message),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Close'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+
+    // Show local notification
+    showNotification('Alert', message);
   }
 
   void showNotification(String? title, String? body) async {
@@ -280,7 +315,6 @@ class VideoGridScreenState extends State<VideoGridScreen> {
                     print("Edited stream title to: $newTitle");
                   }
                 });
-
                 _editTitleController.clear();
                 Navigator.of(context).pop();
               },
