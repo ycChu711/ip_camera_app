@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -126,17 +128,17 @@ class VideoGridScreenState extends State<VideoGridScreen> {
   }
 
   void _showFullScreenAlert(String msg, String? additionalMessage) async {
-    // Define a custom vibration pattern
-    final Iterable<Duration> pattern = [
-      const Duration(milliseconds: 500),
-      const Duration(milliseconds: 500),
-      const Duration(milliseconds: 500),
-    ];
+    // Variable to control the vibration loop
+    bool isAlertOpen = true;
 
-    // Trigger stronger and repeated vibrations
-    if (await Vibrate.canVibrate) {
-      Vibrate.vibrateWithPauses(pattern);
-    }
+    // Start the vibration loop
+    Timer.periodic(const Duration(seconds: 1), (timer) async {
+      if (await Vibrate.canVibrate && isAlertOpen) {
+        Vibrate.vibrate();
+      } else {
+        timer.cancel();
+      }
+    });
 
     if (mounted) {
       Navigator.push(
@@ -147,7 +149,10 @@ class VideoGridScreenState extends State<VideoGridScreen> {
             additionalMessage: additionalMessage,
           ),
         ),
-      );
+      ).then((_) {
+        // Stop the vibration loop when the alert is closed
+        isAlertOpen = false;
+      });
     }
   }
 
