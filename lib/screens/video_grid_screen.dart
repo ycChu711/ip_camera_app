@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:mqtt_client/mqtt_client.dart';
+import 'package:flutter_vibrate/flutter_vibrate.dart';
 import '../main.dart';
 import '../widgets/video_card.dart';
 import '../services/video_service.dart';
@@ -10,6 +11,7 @@ import 'add_stream_screen.dart';
 import 'download_stream_screen.dart';
 import '../utils/constants.dart';
 import '../services/mqtt_service.dart';
+import '../widgets/full_screen_alert_dialog.dart';
 
 class VideoGridScreen extends StatefulWidget {
   final MqttService? mqttService;
@@ -86,23 +88,25 @@ class VideoGridScreenState extends State<VideoGridScreen> {
       AndroidNotification? android = message.notification?.android;
 
       if (notification != null && android != null) {
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: Text(notification.title ?? ''),
-              content: Text(notification.body ?? ''),
-              actions: <Widget>[
-                TextButton(
-                  child: const Text('Close'),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                ),
-              ],
-            );
-          },
-        );
+        if (mounted) {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: Text(notification.title ?? ''),
+                content: Text(notification.body ?? ''),
+                actions: <Widget>[
+                  TextButton(
+                    child: const Text('Close'),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                ],
+              );
+            },
+          );
+        }
       }
     });
   }
@@ -112,71 +116,52 @@ class VideoGridScreenState extends State<VideoGridScreen> {
     final pt =
         MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
 
-    // Check if the message contains a URL
-    if (Uri.tryParse(pt)?.hasAbsolutePath == true) {
-      // Handle as a video link
-      _handleVideoLink(pt);
+    final parts = pt.split(',');
+    final msg = parts[0].trim();
+
+    if (parts.length == 3) {
+      // Check if the message has the correct format
+      final title = parts[1].trim();
+      final url = parts[2].trim();
+
+      // Validate the URL part
+      if (Uri.tryParse(url)?.isAbsolute == true) {
+        _showFullScreenAlert(msg,
+            'New Video Received\nTitle: $title\nThe video is being downloaded.');
+        // Automatically start downloading the video
+        _downloadStream(url, title);
+      } else {
+        _showFullScreenAlert(msg, null);
+      }
     } else {
-      // Handle as a simple alert message
-      _showAlertDialog(pt);
+      _showFullScreenAlert(msg, null);
     }
   }
 
-  void _handleVideoLink(String message) {
-    final parts = message.split(',');
-    if (parts.length == 2) {
-      final url = parts[0];
-      final title = parts[1];
+  void _showFullScreenAlert(String msg, String? additionalMessage) async {
+    // Define a custom vibration pattern
+    final Iterable<Duration> pattern = [
+      const Duration(milliseconds: 500),
+      const Duration(milliseconds: 500),
+      const Duration(milliseconds: 500),
+    ];
 
-      // Automatically start downloading the video
-      _downloadStream(url, title);
+    // Trigger stronger and repeated vibrations
+    if (await Vibrate.canVibrate) {
+      Vibrate.vibrateWithPauses(pattern);
+    }
 
-      // Show the notification dialog
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text('New Video Received'),
-            content: Text('Title: $title\nThe video is being downloaded.'),
-            actions: <Widget>[
-              TextButton(
-                child: const Text('Close'),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-            ],
-          );
-        },
+    if (mounted) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => FullScreenAlertDialog(
+            message: msg,
+            additionalMessage: additionalMessage,
+          ),
+        ),
       );
-
-      // Show local notification
-      showNotification('New Video Received',
-          'Title: $title\nThe video is being downloaded.');
     }
-  }
-
-  void _showAlertDialog(String message) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Alert'),
-          content: Text(message),
-          actions: <Widget>[
-            TextButton(
-              child: const Text('Close'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
-
-    // Show local notification
-    showNotification('Alert', message);
   }
 
   void showNotification(String? title, String? body) async {
@@ -228,101 +213,108 @@ class VideoGridScreenState extends State<VideoGridScreen> {
   }
 
   void _deleteStream(int index) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text(confirmDeleteLabel),
-          content: const Text(confirmDeleteMessage),
-          actions: [
-            TextButton(
-              child: const Text(cancelButtonLabel),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-            TextButton(
-              child: const Text(deleteButtonLabel),
-              onPressed: () {
-                setState(() {
-                  videoData.removeAt(index);
-                  if (kDebugMode) {
-                    print("Deleted stream at index: $index");
-                  }
-                });
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
+    if (mounted) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text(confirmDeleteLabel),
+            content: const Text(confirmDeleteMessage),
+            actions: [
+              TextButton(
+                child: const Text(cancelButtonLabel),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+              TextButton(
+                child: const Text(deleteButtonLabel),
+                onPressed: () {
+                  setState(() {
+                    videoData.removeAt(index);
+                    if (kDebugMode) {
+                      print("Deleted stream at index: $index");
+                    }
+                  });
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
+    }
   }
 
   Future<void> _showAddStreamDialog() async {
-    return showDialog<void>(
-      context: context,
-      builder: (BuildContext context) {
-        return AddStreamScreen(onAddStream: _addNewStream);
-      },
-    );
+    if (mounted) {
+      return showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AddStreamScreen(onAddStream: _addNewStream);
+        },
+      );
+    }
   }
 
   Future<void> _showDownloadStreamDialog() async {
-    return showDialog<void>(
-      context: context,
-      builder: (BuildContext context) {
-        return DownloadStreamScreen(onDownloadStream: _downloadStream);
-      },
-    );
+    if (mounted) {
+      return showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return DownloadStreamScreen(onDownloadStream: _downloadStream);
+        },
+      );
+    }
   }
 
   Future<void> _showEditTitleDialog(int index) async {
     _editTitleController.text = videoData[index]['title']!;
-    return showDialog<void>(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text(editStreamTitleLabel),
-          content: TextField(
-            controller: _editTitleController,
-            decoration: const InputDecoration(
-              labelText: titleLabel,
+    if (mounted) {
+      return showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text(editStreamTitleLabel),
+            content: TextField(
+              controller: _editTitleController,
+              decoration: const InputDecoration(
+                labelText: titleLabel,
+              ),
             ),
-          ),
-          actions: <Widget>[
-            TextButton(
-              child: const Text(cancelButtonLabel),
-              onPressed: () {
-                _editTitleController.clear();
-                Navigator.of(context).pop();
-              },
-            ),
-            TextButton(
-              child: const Text(saveButtonLabel),
-              onPressed: () {
-                final newTitle = _editTitleController.text;
-                if (newTitle.isEmpty) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text(emptyTitleError)),
-                  );
-                  return;
-                }
-
-                setState(() {
-                  videoData[index]['title'] = newTitle;
-                  if (kDebugMode) {
-                    print("Edited stream title to: $newTitle");
+            actions: [
+              TextButton(
+                child: const Text(cancelButtonLabel),
+                onPressed: () {
+                  _editTitleController.clear();
+                  Navigator.of(context).pop();
+                },
+              ),
+              TextButton(
+                child: const Text(saveButtonLabel),
+                onPressed: () {
+                  final newTitle = _editTitleController.text;
+                  if (newTitle.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text(emptyTitleError)),
+                    );
+                    return;
                   }
-                });
-                _editTitleController.clear();
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
+                  setState(() {
+                    videoData[index]['title'] = newTitle;
+                    if (kDebugMode) {
+                      print("Edited stream title to: $newTitle");
+                    }
+                  });
+                  _editTitleController.clear();
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
+    }
   }
 
   @override
