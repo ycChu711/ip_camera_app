@@ -109,6 +109,7 @@ class VideoGridScreenState extends State<VideoGridScreen> {
 
     if (parts.length == 3) {
       // Check if the message has the correct format
+      // Current format: "Alert Message, Title: <title>, URL: <url>"
       final title = parts[1].trim();
       final url = parts[2].trim();
 
