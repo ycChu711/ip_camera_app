@@ -27,11 +27,11 @@ class VideoGridScreenState extends State<VideoGridScreen> {
     {
       'url':
           'https://flutter.github.io/assets-for-api-docs/assets/videos/butterfly.mp4',
-      'title': 'Camera 1'
+      'title': 'HTTP Burrerfly'
     },
     {
       'url': 'https://media.w3.org/2010/05/sintel/trailer.mp4',
-      'title': 'Camera 2'
+      'title': 'HTTP Trailer'
     },
     {
       'url':
@@ -122,6 +122,7 @@ class VideoGridScreenState extends State<VideoGridScreen> {
     } else {
       _showFullScreenAlert(msg, null);
     }
+    showNotification('Alert', msg);
   }
 
   void _showFullScreenAlert(String msg, String? additionalMessage) async {
