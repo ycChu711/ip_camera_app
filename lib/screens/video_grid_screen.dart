@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:mqtt_client/mqtt_client.dart';
+import 'package:flutter_vibrate/flutter_vibrate.dart';
 import '../main.dart';
 import '../widgets/video_card.dart';
 import '../services/video_service.dart';
@@ -10,6 +13,7 @@ import 'add_stream_screen.dart';
 import 'download_stream_screen.dart';
 import '../utils/constants.dart';
 import '../services/mqtt_service.dart';
+import '../widgets/full_screen_alert_dialog.dart';
 
 class VideoGridScreen extends StatefulWidget {
   final MqttService? mqttService;
@@ -25,31 +29,18 @@ class VideoGridScreenState extends State<VideoGridScreen> {
     {
       'url':
           'https://flutter.github.io/assets-for-api-docs/assets/videos/butterfly.mp4',
-      'title': 'Camera 1'
+      'title': 'HTTP Burrerfly'
     },
     {
       'url': 'https://media.w3.org/2010/05/sintel/trailer.mp4',
-      'title': 'Camera 2'
-    },
-    {
-      'url':
-          'https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4',
-      'title': 'Camera 3'
-    },
-    {
-      'url': 'https://media.w3.org/2010/05/sintel/trailer.mp4',
-      'title': 'Camera 4'
-    },
-    {
-      'url':
-          'https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4',
-      'title': 'Camera 5'
+      'title': 'HTTP Trailer'
     },
     {
       'url':
           'rtsp://rtspstream:c04c17ddd4efc34ba69c1e7c03c87a2f@zephyr.rtsp.stream/movie',
-      'title': 'RTSP Stream 1'
-    }
+      'title': 'RTSP Movie'
+    },
+    {'url': 'rrtsp://192.168.1.180/liveRTSP/av4', 'title': 'RTSP Camera'}
   ];
 
   final TextEditingController _editTitleController = TextEditingController();
@@ -75,6 +66,7 @@ class VideoGridScreenState extends State<VideoGridScreen> {
 
   void _setupFirebaseMessaging() {
     FirebaseMessaging messaging = FirebaseMessaging.instance;
+
     messaging.requestPermission(
       alert: true,
       badge: true,
@@ -112,71 +104,57 @@ class VideoGridScreenState extends State<VideoGridScreen> {
     final pt =
         MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
 
-    // Check if the message contains a URL
-    if (Uri.tryParse(pt)?.hasAbsolutePath == true) {
-      // Handle as a video link
-      _handleVideoLink(pt);
+    final parts = pt.split(',');
+    final msg = parts[0].trim();
+
+    if (parts.length == 3) {
+      // Check if the message has the correct format
+      // Current format: "Alert Message, Title: <title>, URL: <url>"
+      final title = parts[1].trim();
+      final url = parts[2].trim();
+
+      // Validate the URL part
+      if (Uri.tryParse(url)?.isAbsolute == true) {
+        _showFullScreenAlert(msg,
+            'New Video Received\nTitle: $title\nThe video is being downloaded.');
+        // Automatically start downloading the video
+        _downloadStream(url, title);
+      } else {
+        _showFullScreenAlert(msg, null);
+      }
     } else {
-      // Handle as a simple alert message
-      _showAlertDialog(pt);
+      _showFullScreenAlert(msg, null);
     }
+    showNotification('Alert', msg);
   }
 
-  void _handleVideoLink(String message) {
-    final parts = message.split(',');
-    if (parts.length == 2) {
-      final url = parts[0];
-      final title = parts[1];
+  void _showFullScreenAlert(String msg, String? additionalMessage) async {
+    // Variable to control the vibration loop
+    bool isAlertOpen = true;
 
-      // Automatically start downloading the video
-      _downloadStream(url, title);
+    // Start the vibration loop
+    Timer.periodic(const Duration(seconds: 1), (timer) async {
+      if (await Vibrate.canVibrate && isAlertOpen) {
+        Vibrate.vibrate();
+      } else {
+        timer.cancel();
+      }
+    });
 
-      // Show the notification dialog
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text('New Video Received'),
-            content: Text('Title: $title\nThe video is being downloaded.'),
-            actions: <Widget>[
-              TextButton(
-                child: const Text('Close'),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-            ],
-          );
-        },
-      );
-
-      // Show local notification
-      showNotification('New Video Received',
-          'Title: $title\nThe video is being downloaded.');
+    if (mounted) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => FullScreenAlertDialog(
+            message: msg,
+            additionalMessage: additionalMessage,
+          ),
+        ),
+      ).then((_) {
+        // Stop the vibration loop when the alert is closed
+        isAlertOpen = false;
+      });
     }
-  }
-
-  void _showAlertDialog(String message) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Alert'),
-          content: Text(message),
-          actions: <Widget>[
-            TextButton(
-              child: const Text('Close'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
-
-    // Show local notification
-    showNotification('Alert', message);
   }
 
   void showNotification(String? title, String? body) async {
@@ -260,7 +238,7 @@ class VideoGridScreenState extends State<VideoGridScreen> {
   }
 
   Future<void> _showAddStreamDialog() async {
-    return showDialog<void>(
+    return showDialog(
       context: context,
       builder: (BuildContext context) {
         return AddStreamScreen(onAddStream: _addNewStream);
@@ -269,7 +247,7 @@ class VideoGridScreenState extends State<VideoGridScreen> {
   }
 
   Future<void> _showDownloadStreamDialog() async {
-    return showDialog<void>(
+    return showDialog(
       context: context,
       builder: (BuildContext context) {
         return DownloadStreamScreen(onDownloadStream: _downloadStream);
@@ -308,7 +286,6 @@ class VideoGridScreenState extends State<VideoGridScreen> {
                   );
                   return;
                 }
-
                 setState(() {
                   videoData[index]['title'] = newTitle;
                   if (kDebugMode) {

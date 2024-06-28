@@ -34,6 +34,8 @@ PODS:
   - Flutter (1.0.0)
   - flutter_local_notifications (0.0.1):
     - Flutter
+  - flutter_vibrate (0.0.1):
+    - Flutter
   - flutter_vlc_player (3.0.3):
     - Flutter
     - MobileVLCKit (~> 3.6.0b9)
@@ -82,6 +84,7 @@ DEPENDENCIES:
   - firebase_messaging (from `.symlinks/plugins/firebase_messaging/ios`)
   - Flutter (from `Flutter`)
   - flutter_local_notifications (from `.symlinks/plugins/flutter_local_notifications/ios`)
+  - flutter_vibrate (from `.symlinks/plugins/flutter_vibrate/ios`)
   - flutter_vlc_player (from `.symlinks/plugins/flutter_vlc_player/ios`)
   - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
 
@@ -107,6 +110,8 @@ EXTERNAL SOURCES:
     :path: Flutter
   flutter_local_notifications:
     :path: ".symlinks/plugins/flutter_local_notifications/ios"
+  flutter_vibrate:
+    :path: ".symlinks/plugins/flutter_vibrate/ios"
   flutter_vlc_player:
     :path: ".symlinks/plugins/flutter_vlc_player/ios"
   path_provider_foundation:
@@ -122,6 +127,7 @@ SPEC CHECKSUMS:
   FirebaseMessaging: 585984d0a1df120617eb10b44cad8968b859815e
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
   flutter_local_notifications: 4cde75091f6327eb8517fa068a0a5950212d2086
+  flutter_vibrate: 9f4c2ab57008965f78969472367c329dd77eb801
   flutter_vlc_player: 2e318881576450ff081eb023d47c289f2c6681eb
   GoogleDataTransport: 6c09b596d841063d76d4288cc2d2f42cc36e1e2a
   GoogleUtilities: ea963c370a38a8069cc5f7ba4ca849a60b6d7d15
