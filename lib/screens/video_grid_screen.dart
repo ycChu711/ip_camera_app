@@ -35,23 +35,10 @@ class VideoGridScreenState extends State<VideoGridScreen> {
     },
     {
       'url':
-          'https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4',
-      'title': 'Camera 3'
-    },
-    {
-      'url': 'https://media.w3.org/2010/05/sintel/trailer.mp4',
-      'title': 'Camera 4'
-    },
-    {
-      'url':
-          'https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4',
-      'title': 'Camera 5'
-    },
-    {
-      'url':
           'rtsp://rtspstream:c04c17ddd4efc34ba69c1e7c03c87a2f@zephyr.rtsp.stream/movie',
-      'title': 'RTSP Stream 1'
-    }
+      'title': 'RTSP Movie'
+    },
+    {'url': 'rrtsp://192.168.1.180/liveRTSP/av4', 'title': 'RTSP Camera'}
   ];
 
   final TextEditingController _editTitleController = TextEditingController();
@@ -77,6 +64,7 @@ class VideoGridScreenState extends State<VideoGridScreen> {
 
   void _setupFirebaseMessaging() {
     FirebaseMessaging messaging = FirebaseMessaging.instance;
+
     messaging.requestPermission(
       alert: true,
       badge: true,
@@ -88,25 +76,23 @@ class VideoGridScreenState extends State<VideoGridScreen> {
       AndroidNotification? android = message.notification?.android;
 
       if (notification != null && android != null) {
-        if (mounted) {
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                title: Text(notification.title ?? ''),
-                content: Text(notification.body ?? ''),
-                actions: <Widget>[
-                  TextButton(
-                    child: const Text('Close'),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                  ),
-                ],
-              );
-            },
-          );
-        }
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text(notification.title ?? ''),
+              content: Text(notification.body ?? ''),
+              actions: <Widget>[
+                TextButton(
+                  child: const Text('Close'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            );
+          },
+        );
       }
     });
   }
@@ -213,108 +199,100 @@ class VideoGridScreenState extends State<VideoGridScreen> {
   }
 
   void _deleteStream(int index) {
-    if (mounted) {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text(confirmDeleteLabel),
-            content: const Text(confirmDeleteMessage),
-            actions: [
-              TextButton(
-                child: const Text(cancelButtonLabel),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-              TextButton(
-                child: const Text(deleteButtonLabel),
-                onPressed: () {
-                  setState(() {
-                    videoData.removeAt(index);
-                    if (kDebugMode) {
-                      print("Deleted stream at index: $index");
-                    }
-                  });
-                  Navigator.of(context).pop();
-                },
-              ),
-            ],
-          );
-        },
-      );
-    }
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text(confirmDeleteLabel),
+          content: const Text(confirmDeleteMessage),
+          actions: [
+            TextButton(
+              child: const Text(cancelButtonLabel),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text(deleteButtonLabel),
+              onPressed: () {
+                setState(() {
+                  videoData.removeAt(index);
+                  if (kDebugMode) {
+                    print("Deleted stream at index: $index");
+                  }
+                });
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   Future<void> _showAddStreamDialog() async {
-    if (mounted) {
-      return showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AddStreamScreen(onAddStream: _addNewStream);
-        },
-      );
-    }
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AddStreamScreen(onAddStream: _addNewStream);
+      },
+    );
   }
 
   Future<void> _showDownloadStreamDialog() async {
-    if (mounted) {
-      return showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return DownloadStreamScreen(onDownloadStream: _downloadStream);
-        },
-      );
-    }
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return DownloadStreamScreen(onDownloadStream: _downloadStream);
+      },
+    );
   }
 
   Future<void> _showEditTitleDialog(int index) async {
     _editTitleController.text = videoData[index]['title']!;
-    if (mounted) {
-      return showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text(editStreamTitleLabel),
-            content: TextField(
-              controller: _editTitleController,
-              decoration: const InputDecoration(
-                labelText: titleLabel,
-              ),
+    return showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text(editStreamTitleLabel),
+          content: TextField(
+            controller: _editTitleController,
+            decoration: const InputDecoration(
+              labelText: titleLabel,
             ),
-            actions: [
-              TextButton(
-                child: const Text(cancelButtonLabel),
-                onPressed: () {
-                  _editTitleController.clear();
-                  Navigator.of(context).pop();
-                },
-              ),
-              TextButton(
-                child: const Text(saveButtonLabel),
-                onPressed: () {
-                  final newTitle = _editTitleController.text;
-                  if (newTitle.isEmpty) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text(emptyTitleError)),
-                    );
-                    return;
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text(cancelButtonLabel),
+              onPressed: () {
+                _editTitleController.clear();
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text(saveButtonLabel),
+              onPressed: () {
+                final newTitle = _editTitleController.text;
+                if (newTitle.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text(emptyTitleError)),
+                  );
+                  return;
+                }
+                setState(() {
+                  videoData[index]['title'] = newTitle;
+                  if (kDebugMode) {
+                    print("Edited stream title to: $newTitle");
                   }
-                  setState(() {
-                    videoData[index]['title'] = newTitle;
-                    if (kDebugMode) {
-                      print("Edited stream title to: $newTitle");
-                    }
-                  });
-                  _editTitleController.clear();
-                  Navigator.of(context).pop();
-                },
-              ),
-            ],
-          );
-        },
-      );
-    }
+                });
+                _editTitleController.clear();
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
