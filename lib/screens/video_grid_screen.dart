@@ -25,31 +25,18 @@ class VideoGridScreenState extends State<VideoGridScreen> {
     {
       'url':
           'https://flutter.github.io/assets-for-api-docs/assets/videos/butterfly.mp4',
-      'title': 'Camera 1'
+      'title': 'HTTP Butterfly'
     },
     {
       'url': 'https://media.w3.org/2010/05/sintel/trailer.mp4',
-      'title': 'Camera 2'
-    },
-    {
-      'url':
-          'https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4',
-      'title': 'Camera 3'
-    },
-    {
-      'url': 'https://media.w3.org/2010/05/sintel/trailer.mp4',
-      'title': 'Camera 4'
-    },
-    {
-      'url':
-          'https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4',
-      'title': 'Camera 5'
+      'title': 'HTTP Trailer'
     },
     {
       'url':
           'rtsp://rtspstream:c04c17ddd4efc34ba69c1e7c03c87a2f@zephyr.rtsp.stream/movie',
-      'title': 'RTSP Stream 1'
-    }
+      'title': 'RTSP movie'
+    },
+    {'url': 'rtsp://192.168.1.180/liveRTSP/av4', 'title': 'RTSP camera'}
   ];
 
   final TextEditingController _editTitleController = TextEditingController();
