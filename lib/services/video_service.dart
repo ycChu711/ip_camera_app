@@ -3,13 +3,14 @@ import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart';
 import 'dart:io';
 
-Future<String> downloadVideo(String url) async {
+Future<String> downloadVideo(String url, {String? uniqueFilename}) async {
   final response = await http.get(Uri.parse(url));
   if (response.statusCode == 200) {
     final directory = await getApplicationDocumentsDirectory();
     // Ensure the filename is valid and properly formatted
-    final fileName = basename(Uri.parse(url).path)
-        .replaceAll(RegExp(r'[^A-Za-z0-9._-]'), '_');
+    String fileName = uniqueFilename ??
+        basename(Uri.parse(url).path)
+            .replaceAll(RegExp(r'[^A-Za-z0-9._-]'), '_');
     final filePath = join(directory.path, fileName);
     final file = File(filePath);
     await file.writeAsBytes(response.bodyBytes);

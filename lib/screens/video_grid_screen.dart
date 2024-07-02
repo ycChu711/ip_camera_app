@@ -171,18 +171,24 @@ class VideoGridScreenState extends State<VideoGridScreen> {
       videoData.add({'url': url, 'title': title});
       if (kDebugMode) {
         print("Added new stream: $title");
+        print("Current videoData: $videoData");
       }
     });
   }
 
-  Future _downloadStream(String url, String title) async {
+  Future<void> _downloadStream(String url, String title) async {
     try {
-      final filePath = await downloadVideo(url);
+      // Generate a unique filename before downloading
+      final timestamp = DateTime.now().millisecondsSinceEpoch;
+      final uniqueFilename = 'video_$timestamp.mp4';
+      final filePath = await downloadVideo(url, uniqueFilename: uniqueFilename);
       if (!mounted) return;
+
       setState(() {
         videoData.add({'url': filePath, 'title': title});
         if (kDebugMode) {
           print("Downloaded stream: $title");
+          print("Current video data: $videoData");
         }
       });
     } catch (e) {
@@ -214,6 +220,7 @@ class VideoGridScreenState extends State<VideoGridScreen> {
                   videoData.removeAt(index);
                   if (kDebugMode) {
                     print("Deleted stream at index: $index");
+                    print("Current videoData: $videoData");
                   }
                 });
                 Navigator.of(context).pop();
@@ -278,6 +285,7 @@ class VideoGridScreenState extends State<VideoGridScreen> {
                   videoData[index]['title'] = newTitle;
                   if (kDebugMode) {
                     print("Edited stream title to: $newTitle");
+                    print("Current videoData: $videoData");
                   }
                 });
                 _editTitleController.clear();
