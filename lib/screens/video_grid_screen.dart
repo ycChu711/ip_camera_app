@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -40,7 +39,7 @@ class VideoGridScreenState extends State<VideoGridScreen> {
           'rtsp://rtspstream:c04c17ddd4efc34ba69c1e7c03c87a2f@zephyr.rtsp.stream/movie',
       'title': 'RTSP Movie'
     },
-    {'url': 'rrtsp://192.168.1.180/liveRTSP/av4', 'title': 'RTSP Camera'}
+    {'url': 'rtsp://192.168.1.250/liveRTSP/av4', 'title': 'RTSP Camera'}
   ];
 
   final TextEditingController _editTitleController = TextEditingController();
@@ -129,10 +128,8 @@ class VideoGridScreenState extends State<VideoGridScreen> {
   }
 
   void _showFullScreenAlert(String msg, String? additionalMessage) async {
-    // Variable to control the vibration loop
-    bool isAlertOpen = true;
-
-    // Start the vibration loop
+// Variable to control the vibration loop
+    bool isAlertOpen = true; // Start the vibration loop
     Timer.periodic(const Duration(seconds: 1), (timer) async {
       if (await Vibrate.canVibrate && isAlertOpen) {
         Vibrate.vibrate();
@@ -187,7 +184,7 @@ class VideoGridScreenState extends State<VideoGridScreen> {
     });
   }
 
-  Future<void> _downloadStream(String url, String title) async {
+  Future _downloadStream(String url, String title) async {
     try {
       final filePath = await downloadVideo(url);
       if (!mounted) return;
@@ -237,7 +234,7 @@ class VideoGridScreenState extends State<VideoGridScreen> {
     );
   }
 
-  Future<void> _showAddStreamDialog() async {
+  Future _showAddStreamDialog() async {
     return showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -246,7 +243,7 @@ class VideoGridScreenState extends State<VideoGridScreen> {
     );
   }
 
-  Future<void> _showDownloadStreamDialog() async {
+  Future _showDownloadStreamDialog() async {
     return showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -255,9 +252,9 @@ class VideoGridScreenState extends State<VideoGridScreen> {
     );
   }
 
-  Future<void> _showEditTitleDialog(int index) async {
+  Future _showEditTitleDialog(int index) async {
     _editTitleController.text = videoData[index]['title']!;
-    return showDialog<void>(
+    return showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
@@ -268,7 +265,7 @@ class VideoGridScreenState extends State<VideoGridScreen> {
               labelText: titleLabel,
             ),
           ),
-          actions: <Widget>[
+          actions: [
             TextButton(
               child: const Text(cancelButtonLabel),
               onPressed: () {
