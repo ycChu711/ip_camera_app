@@ -41,21 +41,22 @@ class VideoCardState extends State<VideoCard> {
     _player = Player();
     _controller = VideoController(_player);
 
-    _player.stream.position.listen((position) {
-      if (mounted) {
-        setState(() {
-          _sliderValue = position.inSeconds.toDouble();
-        });
-      }
-    });
+    // //Add listeners to update the slider value and max value
+    // _player.stream.position.listen((position) {
+    //   if (mounted) {
+    //     setState(() {
+    //       _sliderValue = position.inSeconds.toDouble();
+    //     });
+    //   }
+    // });
 
-    _player.stream.duration.listen((duration) {
-      if (mounted) {
-        setState(() {
-          _maxValue = duration.inSeconds.toDouble();
-        });
-      }
-    });
+    // _player.stream.duration.listen((duration) {
+    //   if (mounted) {
+    //     setState(() {
+    //       _maxValue = duration.inSeconds.toDouble();
+    //     });
+    //   }
+    // });
 
     _player.stream.error.listen((error) {
       if (kDebugMode) {
@@ -176,23 +177,24 @@ class VideoCardState extends State<VideoCard> {
                 ],
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0),
-              child: SizedBox(
-                height: 30,
-                child: Slider(
-                  value: _sliderValue,
-                  min: 0.0,
-                  max: _maxValue > 0 ? _maxValue : 1.0,
-                  onChanged: (value) {
-                    setState(() {
-                      _sliderValue = value;
-                    });
-                    _seekTo(value);
-                  },
-                ),
-              ),
-            ),
+            // // Uncomment the following code to add a slider to seek the video
+            // Padding(
+            //   padding: const EdgeInsets.symmetric(vertical: 8.0),
+            //   child: SizedBox(
+            //     height: 30,
+            //     child: Slider(
+            //       value: _sliderValue,
+            //       min: 0.0,
+            //       max: _maxValue > 0 ? _maxValue : 1.0,
+            //       onChanged: (value) {
+            //         setState(() {
+            //           _sliderValue = value;
+            //         });
+            //         _seekTo(value);
+            //       },
+            //     ),
+            //   ),
+            // ),
           ],
         ),
       ),
