@@ -27,15 +27,6 @@ class VideoGridScreenState extends State<VideoGridScreen> {
   final List<Map<String, String>> videoData = [
     {
       'url':
-          'https://flutter.github.io/assets-for-api-docs/assets/videos/butterfly.mp4',
-      'title': 'HTTP Burrerfly'
-    },
-    {
-      'url': 'https://media.w3.org/2010/05/sintel/trailer.mp4',
-      'title': 'HTTP Trailer'
-    },
-    {
-      'url':
           'rtsp://rtspstream:c04c17ddd4efc34ba69c1e7c03c87a2f@zephyr.rtsp.stream/movie',
       'title': 'RTSP Movie'
     },
