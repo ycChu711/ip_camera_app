@@ -28,8 +28,8 @@ class VideoCardState extends State<VideoCard> {
   late Player _player;
   late VideoController _controller;
   bool _isFile = false;
-  double _sliderValue = 0.0;
-  double _maxValue = 0.0;
+  //double _sliderValue = 0.0;
+  //double _maxValue = 0.0;
 
   @override
   void initState() {
