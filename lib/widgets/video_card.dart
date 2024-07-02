@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_vlc_player/flutter_vlc_player.dart';
+import 'package:media_kit/media_kit.dart';
+import 'package:media_kit_video/media_kit_video.dart';
 import 'dart:io';
 
 class VideoCard extends StatefulWidget {
@@ -24,10 +25,11 @@ class VideoCard extends StatefulWidget {
 }
 
 class VideoCardState extends State<VideoCard> {
-  late VlcPlayerController _controller;
+  late Player _player;
+  late VideoController _controller;
   bool _isFile = false;
-  double _sliderValue = 0.0;
-  double _maxValue = 0.0;
+  //double _sliderValue = 0.0;
+  //double _maxValue = 0.0;
 
   @override
   void initState() {
@@ -36,51 +38,39 @@ class VideoCardState extends State<VideoCard> {
   }
 
   void _initializeController(String url) {
-    setState(() {
-      _isFile = File(url).existsSync();
-    });
+    _player = Player();
+    _controller = VideoController(_player);
 
-    _controller = _isFile
-        ? VlcPlayerController.file(
-            File(url),
-            hwAcc: HwAcc.full,
-            autoPlay: false,
-            options: VlcPlayerOptions(
-              advanced: VlcAdvancedOptions([
-                VlcAdvancedOptions.networkCaching(3000),
-              ]),
-            ),
-          )
-        : VlcPlayerController.network(
-            url,
-            hwAcc: HwAcc.full,
-            autoPlay: false,
-            options: VlcPlayerOptions(
-              advanced: VlcAdvancedOptions([
-                VlcAdvancedOptions.networkCaching(3000),
-              ]),
-            ),
-          );
+    // //Add listeners to update the slider value and max value
+    // _player.stream.position.listen((position) {
+    //   if (mounted) {
+    //     setState(() {
+    //       _sliderValue = position.inSeconds.toDouble();
+    //     });
+    //   }
+    // });
 
-    _controller.addListener(() {
-      if (_controller.value.hasError) {
-        if (kDebugMode) {
-          print('Error playing video: ${_controller.value.errorDescription}');
-        }
-      } else {
-        if (_controller.value.duration.inSeconds > 0) {
-          setState(() {
-            _sliderValue = _controller.value.position.inSeconds.toDouble();
-            _maxValue = _controller.value.duration.inSeconds.toDouble();
-          });
-        }
+    // _player.stream.duration.listen((duration) {
+    //   if (mounted) {
+    //     setState(() {
+    //       _maxValue = duration.inSeconds.toDouble();
+    //     });
+    //   }
+    // });
+
+    _player.stream.error.listen((error) {
+      if (kDebugMode) {
+        print('Error playing video: $error');
       }
     });
+
+    _isFile = File(url).existsSync();
+    _player.open(Media(_isFile ? File(url).path : url));
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    _player.dispose();
     super.dispose();
   }
 
@@ -88,14 +78,14 @@ class VideoCardState extends State<VideoCard> {
   void didUpdateWidget(covariant VideoCard oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.url != widget.url) {
-      _controller.dispose();
+      _player.dispose();
       _initializeController(widget.url);
     }
   }
 
-  void _seekTo(double seconds) {
-    _controller.seekTo(Duration(seconds: seconds.toInt()));
-  }
+  // void _seekTo(double seconds) {
+  //   _player.seek(Duration(seconds: seconds.toInt()));
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -143,38 +133,22 @@ class VideoCardState extends State<VideoCard> {
             Expanded(
               child: Stack(
                 children: [
-                  VlcPlayer(
+                  Video(
                     controller: _controller,
-                    aspectRatio: 16 / 9,
-                    placeholder: const Center(
-                      child: CircularProgressIndicator(),
-                    ),
+                    fit: BoxFit.contain,
                   ),
                   Center(
-                    child: ValueListenableBuilder<VlcPlayerValue>(
-                      valueListenable: _controller,
-                      builder: (context, value, child) {
-                        if (value.hasError) {
-                          return const Center(
-                            child: Icon(
-                              Icons.error,
-                              color: Colors.red,
-                              size: 32,
-                            ),
-                          );
-                        }
-                        return value.isPlaying
+                    child: StreamBuilder<bool>(
+                      stream: _player.stream.playing,
+                      builder: (context, snapshot) {
+                        final isPlaying = snapshot.data ?? false;
+                        return isPlaying
                             ? const SizedBox.shrink()
                             : ElevatedButton(
                                 onPressed: () {
-                                  if (_controller.value.isInitialized) {
-                                    setState(() {
-                                      _controller.play();
-                                      if (kDebugMode) {
-                                        print(
-                                            'Play button pressed, video playing');
-                                      }
-                                    });
+                                  _player.play();
+                                  if (kDebugMode) {
+                                    print('Play button pressed, video playing');
                                   }
                                 },
                                 child: const Icon(Icons.play_arrow),
@@ -184,23 +158,15 @@ class VideoCardState extends State<VideoCard> {
                   ),
                   GestureDetector(
                     onTap: () {
-                      if (_controller.value.isInitialized) {
-                        setState(() {
-                          if (_controller.value.isPlaying) {
-                            _controller.pause();
-                            if (kDebugMode) {
-                              print('Video paused');
-                            }
-                          } else {
-                            _controller.play();
-                            if (kDebugMode) {
-                              print('Video playing');
-                            }
-                          }
-                        });
-                      } else {
+                      if (_player.state.playing) {
+                        _player.pause();
                         if (kDebugMode) {
-                          print('Controller not initialized');
+                          print('Video paused');
+                        }
+                      } else {
+                        _player.play();
+                        if (kDebugMode) {
+                          print('Video playing');
                         }
                       }
                     },
@@ -211,24 +177,24 @@ class VideoCardState extends State<VideoCard> {
                 ],
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0),
-              child: SizedBox(
-                height:
-                    30, // Adjust this height to make the progress bar smaller
-                child: Slider(
-                  value: _sliderValue,
-                  min: 0.0,
-                  max: _maxValue > 0 ? _maxValue : 1.0,
-                  onChanged: (value) {
-                    setState(() {
-                      _sliderValue = value;
-                    });
-                    _seekTo(value);
-                  },
-                ),
-              ),
-            ),
+            // // Uncomment the following code to add a slider to seek the video
+            // Padding(
+            //   padding: const EdgeInsets.symmetric(vertical: 8.0),
+            //   child: SizedBox(
+            //     height: 30,
+            //     child: Slider(
+            //       value: _sliderValue,
+            //       min: 0.0,
+            //       max: _maxValue > 0 ? _maxValue : 1.0,
+            //       onChanged: (value) {
+            //         setState(() {
+            //           _sliderValue = value;
+            //         });
+            //         _seekTo(value);
+            //       },
+            //     ),
+            //   ),
+            // ),
           ],
         ),
       ),
