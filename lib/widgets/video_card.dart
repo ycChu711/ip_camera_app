@@ -83,9 +83,9 @@ class VideoCardState extends State<VideoCard> {
     }
   }
 
-  void _seekTo(double seconds) {
-    _player.seek(Duration(seconds: seconds.toInt()));
-  }
+  // void _seekTo(double seconds) {
+  //   _player.seek(Duration(seconds: seconds.toInt()));
+  // }
 
   @override
   Widget build(BuildContext context) {
