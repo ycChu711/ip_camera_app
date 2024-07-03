@@ -36,3 +36,14 @@ const Color accentColor = Colors.blueAccent;
 const Color backgroundColor = Colors.white;
 const Color buttonColor = Colors.blue;
 const Color buttonTextColor = Colors.white;
+
+// Alert
+const String mqttDanger = 'danger';
+const String dangerAlert = 'DANGER';
+const String appNotificationTitle = 'Alert';
+const String appNotificationBody = 'Danger detected';
+
+// MQTT
+const String mqttServer = 'vip.panvision.com.tw';
+const String mqttClientId = 'flutter_client';
+const String mqttTopic = 'server/detection';
