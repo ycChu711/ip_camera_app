@@ -333,15 +333,17 @@ class VideoGridScreenState extends State<VideoGridScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
+                // Add Stream Button
                 ElevatedButton(
                   onPressed: _showAddStreamDialog,
                   child: const Text(addStreamLabel),
                 ),
                 const SizedBox(width: paddingSmall),
-                ElevatedButton(
-                  onPressed: _showDownloadStreamDialog,
-                  child: const Text(downloadStreamLabel),
-                ),
+                // // Download Stream Button
+                // ElevatedButton(
+                //   onPressed: _showDownloadStreamDialog,
+                //   child: const Text(downloadStreamLabel),
+                // ),
               ],
             ),
           ),
