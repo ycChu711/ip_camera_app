@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-const String appTitle = 'Flutter Demo';
+const String appTitle = 'Security Camera';
 
 // Error Messages
 const String emptyStreamAddressError = 'Stream address cannot be empty';
