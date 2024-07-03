@@ -94,28 +94,35 @@ class VideoGridScreenState extends State<VideoGridScreen> {
     final pt =
         MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
 
-    final parts = pt.split(',');
-    final msg = parts[0].trim();
-
-    if (parts.length == 3) {
-      // Check if the message has the correct format
-      // Current format: "Alert Message, Title: <title>, URL: <url>"
-      final title = parts[1].trim();
-      final url = parts[2].trim();
-
-      // Validate the URL part
-      if (Uri.tryParse(url)?.isAbsolute == true) {
-        _showFullScreenAlert(msg,
-            'New Video Received\nTitle: $title\nThe video is being downloaded.');
-        // Automatically start downloading the video
-        _downloadStream(url, title);
-      } else {
-        _showFullScreenAlert(msg, null);
-      }
-    } else {
-      _showFullScreenAlert(msg, null);
+    // Check if the message is a danger alert
+    if (pt == mqttDanger) {
+      _showFullScreenAlert(dangerAlert, null);
+      showNotification(appNotificationTitle, appNotificationBody);
+      return;
     }
-    showNotification('Alert', msg);
+    // // Split the message into parts
+    // final parts = pt.split(',');
+    // final msg = parts[0].trim();
+
+    // if (parts.length == 3) {
+    //   // Check if the message has the correct format
+    //   // Current format: "Alert Message, Title: <title>, URL: <url>"
+    //   final title = parts[1].trim();
+    //   final url = parts[2].trim();
+
+    //   // Validate the URL part
+    //   if (Uri.tryParse(url)?.isAbsolute == true) {
+    //     _showFullScreenAlert(msg,
+    //         'New Video Received\nTitle: $title\nThe video is being downloaded.');
+    //     // Automatically start downloading the video
+    //     _downloadStream(url, title);
+    //   } else {
+    //     _showFullScreenAlert(msg, null);
+    //   }
+    // } else {
+    //   _showFullScreenAlert(msg, null);
+    // }
+    // showNotification('Alert', msg);
   }
 
   void _showFullScreenAlert(String msg, String? additionalMessage) async {

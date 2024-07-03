@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:ip_camera_streaming_app/utils/constants.dart';
 import 'package:media_kit/media_kit.dart';
 import 'screens/video_grid_screen.dart';
 import 'services/mqtt_service.dart';
@@ -60,10 +61,11 @@ void main() async {
   );
   await flutterLocalNotificationsPlugin.initialize(initializationSettings);
 
-  final mqttService = MqttService('192.168.1.15', 'flutter_client');
+  final mqttService = MqttService(mqttServer,
+      mqttClientId); // Testing MQTT server IP address: '192.168.1.15', 'flutter_client'
   try {
     await mqttService.connect();
-    mqttService.subscribe('test/topic');
+    mqttService.subscribe(mqttTopic); //topic for testing: test/topic
     runApp(MyApp(mqttService: mqttService));
   } catch (e) {
     if (kDebugMode) {
@@ -81,7 +83,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Security Camera',
       theme: ThemeData(
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
