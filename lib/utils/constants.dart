@@ -45,5 +45,4 @@ const String appNotificationBody = 'Danger detected';
 
 // MQTT
 const String mqttServer = 'vip.panvision.com.tw';
-const String mqttClientId = 'flutter_client';
 const String mqttTopic = 'server/detection';
