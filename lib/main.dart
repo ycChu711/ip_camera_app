@@ -5,6 +5,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:ip_camera_streaming_app/utils/constants.dart';
 import 'package:media_kit/media_kit.dart';
+import 'package:uuid/uuid.dart';
 import 'screens/video_grid_screen.dart';
 import 'services/mqtt_service.dart';
 
@@ -60,6 +61,9 @@ void main() async {
     iOS: initializationSettingsIOS,
   );
   await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+
+  const uuid = Uuid();
+  final mqttClientId = uuid.v4(); // Generate a unique clientId
 
   final mqttService = MqttService(mqttServer,
       mqttClientId); // Testing MQTT server IP address: '192.168.1.15', 'flutter_client'

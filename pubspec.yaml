@@ -47,6 +47,7 @@ dependencies:
   media_kit_video:
     path: custom_plugins/custom_media_kit_video                        # For video rendering.
   media_kit_libs_video: ^1.0.4 
+  uuid: ^4.4.0
 
 
 
