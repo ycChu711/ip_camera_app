@@ -48,8 +48,20 @@ flutter pub get
 
 #### iOS
 1.	Ensure Xcode is installed.
+2.	##### Please follow these steps to configure the iOS project:
+   
+   	1. Open the project in Xcode:
+   	```sh
+   	open ios/Runner.xcworkspace
+	```
+	2.	Set the Development Team and Code Signing Identity:
+		- Go to the project settings and set your Development Team under the Signing & Capabilities tab for both the Runner and RunnerTests targets.
+		- Ensure the correct Code Signing Identity is selected.
 
-2.	Install CocoaPods if not already installed:
+	3.	Set the Product Bundle Identifier:
+		- Go to the project settings and set your unique Bundle Identifier under the General tab for both the Runner and RunnerTests targets.
+
+3.	Install CocoaPods if not already installed:
 ```sh
 sudo gem install cocoapods
 ```
