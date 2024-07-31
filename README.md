@@ -1,16 +1,83 @@
-# ip_camera_streaming_app
+# IP Camera Streaming App
 
-A new Flutter project.
+This is a Flutter application that streams video from an IP camera. The app is designed to run on multiple platforms, including Android, iOS, web, macOS, Linux, and Windows.
+
+## Features
+
+- Real-time video streaming
+- Multi-platform support
+- User-friendly interface
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+### Prerequisites
 
-A few resources to get you started if this is your first Flutter project:
+Ensure you have the following installed:
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+- [Flutter](https://flutter.dev/docs/get-started/install)
+- Platform-specific requirements:
+  - **Android**: [Android Studio](https://developer.android.com/studio)
+  - **iOS/macOS**: [Xcode](https://developer.apple.com/xcode/)
+  - **Windows**: [Visual Studio](https://visualstudio.microsoft.com/)
+  - **Linux**: Development tools (GCC, CMake, etc.)
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+### Cloning the Repository
+
+Clone the repository to your local machine:
+
+```sh
+git clone -b [your-branch-name] https://github.com/ycChu711/ip_camera_app.git
+cd ip_camera_app
+```
+
+### Installing Dependencies
+
+Navigate to the project directory and install the necessary dependencies:
+```sh
+flutter pub get
+```
+
+### Platform-Specific Setup
+
+#### Android
+  1.	Ensure Android Studio is installed.
+	2.	Install Android SDK and necessary tools.
+	3.	If local.properties is not generated, create it manually with the SDK path.
+
+#### iOS
+  1.	Ensure Xcode is installed.
+	2.	Install CocoaPods if not already installed:
+```sh
+sudo gem install cocoapods
+```
+  3.	Navigate to the ios directory and run:
+```sh
+cd ios
+pod install
+cd ..
+```
+
+#### macOS
+  1.	Ensure Xcode is installed.
+	2.	Install CocoaPods if not already installed:
+```sh
+sudo gem install cocoapods
+```
+  3.	Navigate to the macos directory and run:
+```sh
+cd macos
+pod install
+cd ..
+```
+
+#### web
+  1.	Ensure you have a compatible web browser and development tools.
+
+#### Linux
+  1.	Ensure the necessary development tools are installed (GCC, CMake, etc.).
+
+### Running the App
+To run the app, use the following command:
+```sh
+flutter run
+```
