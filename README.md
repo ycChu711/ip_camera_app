@@ -40,17 +40,20 @@ flutter pub get
 ### Platform-Specific Setup
 
 #### Android
-  1.	Ensure Android Studio is installed.
-	2.	Install Android SDK and necessary tools.
-	3.	If local.properties is not generated, create it manually with the SDK path.
+1.	Ensure Android Studio is installed.
+	
+2.	Install Android SDK and necessary tools.
+
+3.	If local.properties is not generated, create it manually with the SDK path.
 
 #### iOS
-  1.	Ensure Xcode is installed.
-	2.	Install CocoaPods if not already installed:
+1.	Ensure Xcode is installed.
+
+2.	Install CocoaPods if not already installed:
 ```sh
 sudo gem install cocoapods
 ```
-  3.	Navigate to the ios directory and run:
+3.	Navigate to the ios directory and run:
 ```sh
 cd ios
 pod install
@@ -58,12 +61,13 @@ cd ..
 ```
 
 #### macOS
-  1.	Ensure Xcode is installed.
-	2.	Install CocoaPods if not already installed:
+1.	Ensure Xcode is installed.
+
+2.	Install CocoaPods if not already installed:
 ```sh
 sudo gem install cocoapods
 ```
-  3.	Navigate to the macos directory and run:
+3.	Navigate to the macos directory and run:
 ```sh
 cd macos
 pod install
@@ -71,10 +75,10 @@ cd ..
 ```
 
 #### web
-  1.	Ensure you have a compatible web browser and development tools.
+1.	Ensure you have a compatible web browser and development tools.
 
 #### Linux
-  1.	Ensure the necessary development tools are installed (GCC, CMake, etc.).
+1.	Ensure the necessary development tools are installed (GCC, CMake, etc.).
 
 ### Running the App
 To run the app, use the following command:
