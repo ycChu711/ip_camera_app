@@ -58,7 +58,7 @@ app.*.map.json
 /ios/Flutter/ephemeral/
 /ios/Flutter/Flutter.podspec.lock
 /ios/Runner.xcworkspace
-/ios/Runner.xcodeproj/project.pbxproj
+#/ios/Runner.xcodeproj/project.pbxproj
 /ios/Runner.xcodeproj/xcuserdata/
 /ios/GoogleService-Info.plist
 
