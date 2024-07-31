@@ -5,8 +5,8 @@
 *.swp
 .DS_Store
 .atom/
-.buildlog/
-.history
+/.buildlog/
+/.history
 .svn/
 migrate_working_dir/
 
@@ -16,16 +16,14 @@ migrate_working_dir/
 *.iws
 .idea/
 
-# The .vscode folder contains launch configuration and tasks you configure in
-# VS Code which you may wish to be included in version control, so this line
-# is commented out by default.
-#.vscode/
+# VS Code related (comment out if you want to track VS Code settings)
+/.vscode/
 
 # Flutter/Dart/Pub related
 **/doc/api/
-**/ios/Flutter/.last_build_id
+/ios/Flutter/.last_build_id
 .dart_tool/
-.flutter-plugins
+/.flutter-plugins
 .flutter-plugins-dependencies
 .pub-cache/
 .pub/
@@ -37,10 +35,64 @@ app.*.symbols
 # Obfuscation related
 app.*.map.json
 
-# Android Studio will place build artifacts here
-/android/app/debug
-/android/app/profile
-/android/app/release
+# Android related
+/android/.gradle/
+/android/.idea/
+/android/local.properties
+/android/app/build/
+/android/app/src/debug/
+/android/app/src/profile/
+/android/gradle/wrapper/gradle-wrapper.jar
+/android/gradle/wrapper/gradle-wrapper.properties
 
-ios/GoogleService-Info.plist
-#.github/workflows/build.yml
+# iOS related
+/ios/.symlinks/
+/ios/Pods/
+/ios/Podfile.lock
+/ios/Flutter/AppFrameworkInfo.plist
+/ios/Flutter/Debug.xcconfig
+/ios/Flutter/Generated.xcconfig
+/ios/Flutter/Release.xcconfig
+/ios/Flutter/flutter_export_environment.sh
+/ios/Flutter/Flutter.podspec
+/ios/Flutter/ephemeral/
+/ios/Flutter/Flutter.podspec.lock
+/ios/Runner.xcworkspace
+/ios/Runner.xcodeproj/project.pbxproj
+/ios/Runner.xcodeproj/xcuserdata/
+/ios/GoogleService-Info.plist
+
+# Linux related
+/linux/ephemeral/
+/linux/generated_plugin_registrant.cc
+/linux/generated_plugin_registrant.h
+/linux/generated_plugins.cmake
+
+# macOS related
+/macos/Flutter/ephemeral/
+/macos/Flutter/Flutter-Debug.xcconfig
+/macos/Flutter/Flutter-Release.xcconfig
+/macos/Flutter/GeneratedPluginRegistrant.swift
+/macos/Pods/
+/macos/Podfile.lock
+/macos/build/
+/macos/.symlinks/
+/macos/Flutter/Flutter.podspec.lock
+/macos/Runner.xcworkspace
+/macos/Runner.xcodeproj/project.pbxproj
+/macos/Runner.xcodeproj/xcuserdata/
+
+# Web related
+/web/build/
+/web/.dart_tool/
+
+# Windows related
+/windows/flutter/ephemeral/
+/windows/flutter/generated_plugin_registrant.cc
+/windows/flutter/generated_plugin_registrant.h
+/windows/flutter/generated_plugins.cmake
+/windows/flutter/.dart_tool/
+/windows/runner/.dart_tool/
+/windows/runner/.packages
+/windows/runner/ephemeral/
+/windows/build/

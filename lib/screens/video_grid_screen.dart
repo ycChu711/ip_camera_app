@@ -24,13 +24,18 @@ class VideoGridScreen extends StatefulWidget {
 }
 
 class VideoGridScreenState extends State<VideoGridScreen> {
+  // todo: Add a list of video data to display in the grid
   final List<Map<String, String>> videoData = [
     {
       'url':
-          'rtsp://rtspstream:c04c17ddd4efc34ba69c1e7c03c87a2f@zephyr.rtsp.stream/movie',
+          'rtsp://rtspstream:c04c17ddd4efc34ba69c1e7c03c87a2f@zephyr.rtsp.stream/movie', // RTSP stream URL for testing
       'title': 'RTSP Movie'
     },
-    {'url': 'rtsp://192.168.1.250/liveRTSP/av4', 'title': 'RTSP Camera'}
+    {
+      'url':
+          'rtsp://192.168.1.250/liveRTSP/av4', // camera RTSP stream URL for testing
+      'title': 'RTSP Camera'
+    } // RTSP stream URL for testing
   ];
 
   final TextEditingController _editTitleController = TextEditingController();
@@ -126,7 +131,6 @@ class VideoGridScreenState extends State<VideoGridScreen> {
   }
 
   void _showFullScreenAlert(String msg, String? additionalMessage) async {
-// Variable to control the vibration loop
     bool isAlertOpen = true; // Start the vibration loop
     Timer.periodic(const Duration(seconds: 1), (timer) async {
       if (await Vibrate.canVibrate && isAlertOpen) {
